@@ -155,6 +155,8 @@ class Snake(Object):
 				self.pos.x += 1
 				self.pos.x %= self.targetWorld.WorldSize[0]
 	
+	
+
 	#updateChain is called from the parent to update a child
 	def updateChain(self, newPos):
 		if(self.parentSnake != None):
@@ -164,10 +166,13 @@ class Snake(Object):
 			if(self.childSnake != None):
 				self.childSnake.updateChain(prevPos)
 
-	def OnCollision(self, target):
+	def OnCollision(self, target: Object):
 		super().OnCollision(target)
 		if(isinstance(target, Snake)):
 		elif(isinstance(target, Food)):
+
+		else:
+			return
 
 
 
