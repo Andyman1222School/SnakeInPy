@@ -271,6 +271,11 @@ class Snake(Object):
 	dir = Directions.RIGHT
 	default_length = 2
 	head_symbol="@"
+	eat_food_symbol="O"
+
+	#used for an effect upon eating food
+	eaten_food=False
+	prev_eaten_food = False
 
 	prev_dir = Directions.RIGHT
 	
@@ -288,13 +293,9 @@ class Snake(Object):
 		return 1+len(self.child_snake)
 
 	def pre_input_tick(self, target_world):
-		if(self.parent_snake == None):
-			self.prev_dir = copy.deepcopy(self.dir)
-			self.prev_pos = copy.deepcopy(self.pos)
-		
-		else:
-			self.prev_pos = copy.deepcopy(self.pos)
-			self.prev_dir = copy.deepcopy(self.dir)
+		self.prev_eaten_food = self.eaten_food
+		self.prev_pos = copy.deepcopy(self.pos)
+		self.prev_dir = copy.deepcopy(self.dir)
 
 		if(self.child_snake != None):
 			self.child_snake.pre_input_tick(target_world)
@@ -303,6 +304,8 @@ class Snake(Object):
 		if(self.parent_snake == None):
 			return self.head_symbol
 		else:
+			if self.eaten_food:
+				return self.eat_food_symbol
 			dir1 = self.parent_snake.dir
 			dir2 = self.parent_snake.prev_dir
 			dir3 = self.prev_dir
@@ -371,6 +374,7 @@ class Snake(Object):
 	#move_tick updates our position
 	def move_tick(self, target_world: SnakeGame):
 		if(self.parent_snake == None):
+			self.eaten_food = False
 			if self.dir == Directions.UP:
 				self.pos.y += 1
 				self.pos.y %= target_world.world_size[1]
@@ -388,6 +392,7 @@ class Snake(Object):
 		else:
 			self.dir = self.parent_snake.prev_dir
 			self.pos = self.parent_snake.prev_pos
+			self.eaten_food = self.parent_snake.prev_eaten_food
 
 		if(self.child_snake != None):
 			self.child_snake.move_tick(target_world)
@@ -400,6 +405,7 @@ class Snake(Object):
 					self.eliminate(target_world)
 			elif(isinstance(target, Food)):
 				self.add_snake(target_world)
+				self.eaten_food = True
 			else:
 				return
 
